@@ -3,7 +3,8 @@
     <div>
       <input type="text" name="" id="name" v-model="name" />
       <button @click="handleJoin">参加する</button>
-      <button @click="switchVideo">出力先を切り替える</button>
+      <button @click="switchVideo">自分の出力先を切り替える</button>
+      <button @click="switchVideoRemote">相手の出力先を切り替える</button>
     </div>
 
     <div class="border">
@@ -18,6 +19,10 @@
       <p>{{ this.localDisplayName }} 自分:切り替え先</p>
       <video ref="switchedLocal" src=""></video>
     </div>
+    <div class="border">
+      <p>{{ this.localDisplayName }} 自分:切り替え先</p>
+      <video ref="switchedRemote" src=""></video>
+    </div>
   </div>
 </template>
 
@@ -25,6 +30,7 @@
 import { MyRTC } from "./p2p/MyRTC";
 
 let myRTC = null;
+let remoteStream = null;
 
 export default {
   data() {
@@ -91,11 +97,20 @@ export default {
         video: true,
       });
       const { local, switchedLocal } = this.$refs;
-      console.log("sfsf", switchedLocal, local, stream);
       if (switchedLocal.srcObject === null) {
+        remoteStream = stream; // あとで切り替えるように使う
+        console.log("sss", remoteStream);
         switchedLocal.srcObject = stream;
         local.srcObject = null;
         switchedLocal.play();
+      }
+    },
+    async switchVideoRemote() {
+      const { remote, switchedRemote } = this.$refs;
+      if (switchedRemote.srcObject === null) {
+        switchedRemote.srcObject = remoteStream;
+        remote.srcObject = null;
+        switchedRemote.play();
       }
     },
     generateRamdomName() {
