@@ -3,15 +3,20 @@
     <div>
       <input type="text" name="" id="name" v-model="name" />
       <button @click="handleJoin">参加する</button>
+      <button @click="switchVideo">出力先を切り替える</button>
     </div>
 
-    <div>
+    <div class="border">
       <p>{{ this.localDisplayName }} 自分</p>
       <video ref="local" src=""></video>
     </div>
-    <div>
+    <div class="border">
       <p>{{ this.remoteDisplayName }} 相手</p>
       <video ref="remote" src=""></video>
+    </div>
+    <div class="border">
+      <p>{{ this.localDisplayName }} 自分:切り替え先</p>
+      <video ref="switchedLocal" src=""></video>
     </div>
   </div>
 </template>
@@ -24,7 +29,7 @@ let myRTC = null;
 export default {
   data() {
     return {
-      name: "名前",
+      name: this.generateRamdomName(),
       localDisplayName: "",
       remoteDisplayName: "",
     };
@@ -80,6 +85,29 @@ export default {
 
       this.localDisplayName = this.name;
     },
+    async switchVideo() {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+      const { local, switchedLocal } = this.$refs;
+      console.log("sfsf", switchedLocal, local, stream);
+      if (switchedLocal.srcObject === null) {
+        switchedLocal.srcObject = stream;
+        local.srcObject = null;
+        switchedLocal.play();
+      }
+    },
+    generateRamdomName() {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let rand_str = "";
+      for (var i = 0; i < 8; i++) {
+        rand_str += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      return rand_str;
+    },
   },
   mounted() {
     const { local, remote } = this.$refs;
@@ -99,6 +127,9 @@ export default {
 </script>
 
 <style>
+.border {
+  border: 1px solid #ddd;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
